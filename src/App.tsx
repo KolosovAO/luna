@@ -1,4 +1,6 @@
 import { useEffect, useMemo, useState } from "react";
+import { SafeAreaView, StyleSheet, Text, useWindowDimensions, View } from "react-native";
+import { StatusBar } from "expo-status-bar";
 import { Countdown } from "./components/Countdown";
 import { MoonPhase } from "./components/MoonPhase";
 import { StarField } from "./components/StarField";
@@ -33,25 +35,27 @@ function WindowTimes({ window }: { window?: TimeWindow }) {
   }
 
   return (
-    <dl className="window-times">
-      <div>
-        <dt>Старт</dt>
-        <dd>{formatShortDateTime(window.start)}</dd>
-      </div>
-      <div>
-        <dt>Финиш</dt>
-        <dd>{formatShortDateTime(window.end)}</dd>
-      </div>
-    </dl>
+    <View style={styles.windowTimes}>
+      <View style={styles.windowTimeItem}>
+        <Text style={styles.metaLabel}>Старт</Text>
+        <Text style={styles.metaValue}>{formatShortDateTime(window.start)}</Text>
+      </View>
+      <View style={styles.windowTimeItem}>
+        <Text style={styles.metaLabel}>Финиш</Text>
+        <Text style={styles.metaValue}>{formatShortDateTime(window.end)}</Text>
+      </View>
+    </View>
   );
 }
 
 export function App() {
   const [now, setNow] = useState(() => new Date());
+  const { height, width } = useWindowDimensions();
+  const compact = height < 760 || width < 390;
 
   useEffect(() => {
-    const timer = window.setInterval(() => setNow(new Date()), 1000);
-    return () => window.clearInterval(timer);
+    const timer = setInterval(() => setNow(new Date()), 1000);
+    return () => clearInterval(timer);
   }, []);
 
   const snapshot = useMemo(() => getLunarSnapshot(now), [now]);
@@ -65,68 +69,185 @@ export function App() {
   }, [now, snapshot]);
 
   return (
-    <main className="app-shell">
+    <View style={styles.root}>
+      <StatusBar style="light" />
       <StarField />
-      <div className="app-shell__content">
-        <section className={`hero hero--${display.mode}`}>
-          <div className="hero__visual">
+      <SafeAreaView style={styles.safeArea}>
+        <View style={[styles.screen, compact && styles.screenCompact]}>
+          <View style={[styles.moonSlot, compact && styles.moonSlotCompact]}>
             <MoonPhase
               illuminationFraction={snapshot.phase.illuminationFraction}
               isWaxing={snapshot.phase.isWaxing}
               label={snapshot.phase.label}
+              size={compact ? 162 : 214}
             />
-          </div>
+          </View>
 
-          <div className="hero__details">
-            <p className="eyebrow">{display.eyebrow}</p>
-            <h1>{display.title}</h1>
-            <Countdown label={display.countdownLabel} countdown={display.countdown} />
+          <View style={[styles.panel, display.mode === "money-window-active" && styles.panelActive]}>
+            <Text style={styles.eyebrow}>{display.eyebrow}</Text>
+            <Text style={[styles.title, compact && styles.titleCompact]} numberOfLines={2}>
+              {display.title}
+            </Text>
+            <Countdown label={display.countdownLabel} countdown={display.countdown} compact={compact} />
+          </View>
 
-            <section className="info-grid" aria-label="Лунные данные">
-              <article className="info-panel">
-                <span className="info-panel__label">Сейчас</span>
-                <h2>{snapshot.phase.label}</h2>
-                <dl>
-                  <div>
-                    <dt>Луна</dt>
-                    <dd>{snapshot.phase.isWaxing ? "растет" : "убывает"}</dd>
-                  </div>
-                  <div>
-                    <dt>Свет</dt>
-                    <dd>{formatPercent(snapshot.phase.illuminationFraction)}</dd>
-                  </div>
-                  <div>
-                    <dt>Видно</dt>
-                    <dd>{snapshot.phase.normallyVisible ? "да" : "нет"}</dd>
-                  </div>
-                </dl>
-              </article>
+          <View style={styles.infoGrid}>
+            <View style={styles.infoPanel}>
+              <Text style={styles.infoLabel}>Сейчас</Text>
+              <Text style={styles.infoTitle} numberOfLines={1}>
+                {snapshot.phase.label}
+              </Text>
+              <Text style={styles.infoText}>
+                {snapshot.phase.isWaxing ? "растет" : "убывает"} · {formatPercent(snapshot.phase.illuminationFraction)}
+              </Text>
+            </View>
 
-              <article className="info-panel info-panel--accent">
-                <span className="info-panel__label">Окно</span>
-                <h2>{display.primaryWindow?.label ?? snapshot.nextEvent.label}</h2>
-                <WindowTimes window={display.primaryWindow} />
-                {!display.primaryWindow ? (
-                  <p className="info-panel__text">{formatShortDateTime(snapshot.nextEvent.at)}</p>
-                ) : null}
-              </article>
+            <View style={[styles.infoPanel, styles.infoPanelAccent]}>
+              <Text style={styles.infoLabel}>Окно</Text>
+              <Text style={styles.infoTitle} numberOfLines={1}>
+                {display.primaryWindow?.label ?? snapshot.nextEvent.label}
+              </Text>
+              <WindowTimes window={display.primaryWindow} />
+              {!display.primaryWindow ? <Text style={styles.infoText}>{formatShortDateTime(snapshot.nextEvent.at)}</Text> : null}
+            </View>
 
-              <article className="info-panel">
-                <span className="info-panel__label">Серп</span>
-                <h2>
-                  {snapshot.youngCrescentMoneyWindow.active
-                    ? formatCompactCountdown(moneyWindowCountdown)
-                    : `через ${formatCompactCountdown(moneyWindowCountdown)}`}
-                </h2>
-                <p className="info-panel__text">
-                  {formatShortDateTime(snapshot.youngCrescentMoneyWindow.start)} -{" "}
-                  {formatShortDateTime(snapshot.youngCrescentMoneyWindow.end)}
-                </p>
-              </article>
-            </section>
-          </div>
-        </section>
-      </div>
-    </main>
+            <View style={styles.infoPanel}>
+              <Text style={styles.infoLabel}>Серп</Text>
+              <Text style={styles.infoTitle} numberOfLines={1}>
+                {snapshot.youngCrescentMoneyWindow.active
+                  ? formatCompactCountdown(moneyWindowCountdown)
+                  : `через ${formatCompactCountdown(moneyWindowCountdown)}`}
+              </Text>
+              <Text style={styles.infoText}>
+                {formatShortDateTime(snapshot.youngCrescentMoneyWindow.start)} -{" "}
+                {formatShortDateTime(snapshot.youngCrescentMoneyWindow.end)}
+              </Text>
+            </View>
+          </View>
+        </View>
+      </SafeAreaView>
+    </View>
   );
 }
+
+const styles = StyleSheet.create({
+  eyebrow: {
+    color: "#b9d5ff",
+    fontSize: 13,
+    fontWeight: "800",
+    letterSpacing: 0,
+    textTransform: "uppercase"
+  },
+  infoGrid: {
+    gap: 8,
+    width: "100%"
+  },
+  infoLabel: {
+    color: "#9db9df",
+    fontSize: 11,
+    fontWeight: "800",
+    letterSpacing: 0,
+    textTransform: "uppercase"
+  },
+  infoPanel: {
+    backgroundColor: "rgba(7, 14, 28, 0.58)",
+    borderColor: "rgba(180, 214, 255, 0.17)",
+    borderRadius: 8,
+    borderWidth: 1,
+    gap: 4,
+    paddingHorizontal: 14,
+    paddingVertical: 10
+  },
+  infoPanelAccent: {
+    backgroundColor: "rgba(25, 47, 82, 0.56)",
+    borderColor: "rgba(210, 232, 255, 0.25)"
+  },
+  infoText: {
+    color: "#b5c9e4",
+    fontSize: 12,
+    fontWeight: "600",
+    letterSpacing: 0
+  },
+  infoTitle: {
+    color: "#ffffff",
+    fontSize: 16,
+    fontWeight: "800",
+    letterSpacing: 0
+  },
+  metaLabel: {
+    color: "#91acd0",
+    fontSize: 10,
+    fontWeight: "800",
+    letterSpacing: 0,
+    textTransform: "uppercase"
+  },
+  metaValue: {
+    color: "#d8e8ff",
+    fontSize: 12,
+    fontWeight: "700",
+    letterSpacing: 0
+  },
+  moonSlot: {
+    alignItems: "flex-end",
+    marginRight: -18,
+    marginTop: -8,
+    width: "100%"
+  },
+  moonSlotCompact: {
+    marginRight: -12,
+    marginTop: -14
+  },
+  panel: {
+    backgroundColor: "rgba(5, 10, 20, 0.54)",
+    borderColor: "rgba(212, 232, 255, 0.2)",
+    borderRadius: 8,
+    borderWidth: 1,
+    gap: 14,
+    padding: 18,
+    width: "100%"
+  },
+  panelActive: {
+    backgroundColor: "rgba(22, 34, 55, 0.66)",
+    borderColor: "rgba(255, 239, 178, 0.32)"
+  },
+  root: {
+    backgroundColor: "#02040a",
+    flex: 1,
+    overflow: "hidden"
+  },
+  safeArea: {
+    flex: 1
+  },
+  screen: {
+    alignItems: "center",
+    flex: 1,
+    justifyContent: "space-between",
+    paddingBottom: 20,
+    paddingHorizontal: 18,
+    paddingTop: 10
+  },
+  screenCompact: {
+    paddingBottom: 12,
+    paddingHorizontal: 14,
+    paddingTop: 4
+  },
+  title: {
+    color: "#ffffff",
+    fontSize: 38,
+    fontWeight: "900",
+    letterSpacing: 0,
+    lineHeight: 42
+  },
+  titleCompact: {
+    fontSize: 30,
+    lineHeight: 34
+  },
+  windowTimeItem: {
+    flex: 1,
+    gap: 2
+  },
+  windowTimes: {
+    flexDirection: "row",
+    gap: 10
+  }
+});

@@ -1,0 +1,23 @@
+{
+  "expo": {
+    "name": "Luna Helper",
+    "slug": "luna-helper",
+    "version": "0.1.0",
+    "orientation": "portrait",
+    "userInterfaceStyle": "dark",
+    "scheme": "lunahelper",
+    "ios": {
+      "supportsTablet": true
+    },
+    "android": {
+      "edgeToEdgeEnabled": true
+    },
+    "web": {
+      "bundler": "metro",
+      "output": "single"
+    },
+    "experiments": {
+      "baseUrl": "/luna"
+    }
+  }
+}
