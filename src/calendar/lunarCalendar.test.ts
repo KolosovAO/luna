@@ -11,12 +11,16 @@ describe("lunar calendar export", () => {
     expect(reminders[0].summary).toBe("Молодой серп");
   });
 
-  it("creates future new moon moment reminders", () => {
-    const reminders = getUpcomingLunarReminders(new Date("2026-06-30T10:00:00.000Z"), 3, "new-moon-moment");
+  it("creates future evening reminders", () => {
+    const reminders = getUpcomingLunarReminders(
+      new Date("2026-06-30T10:00:00.000Z"),
+      3,
+      "young-crescent-evening"
+    );
 
     expect(reminders).toHaveLength(3);
-    expect(reminders[0].summary).toBe("Новолуние");
-    expect(reminders[0].reminderAt.getMinutes()).not.toBe(0);
+    expect(reminders[0].reminderAt.getHours()).toBe(20);
+    expect(reminders[0].summary).toBe("Молодой серп");
     expect(reminders[0].reminderAt.getTime()).toBeGreaterThan(Date.parse("2026-06-30T10:00:00.000Z"));
   });
 
@@ -30,10 +34,10 @@ describe("lunar calendar export", () => {
     expect(calendar).toContain("TRIGGER:-PT0M");
   });
 
-  it("exports new moon moment text", () => {
-    const calendar = createLunarCalendar(new Date("2026-06-30T10:00:00.000Z"), 1, "new-moon-moment");
+  it("exports young crescent money text", () => {
+    const calendar = createLunarCalendar(new Date("2026-06-30T10:00:00.000Z"), 1, "young-crescent-evening");
 
-    expect(calendar).toContain("SUMMARY:Новолуние");
-    expect(calendar).toContain("Точный момент новолуния");
+    expect(calendar).toContain("SUMMARY:Молодой серп");
+    expect(calendar).toContain("показать ему деньги");
   });
 });

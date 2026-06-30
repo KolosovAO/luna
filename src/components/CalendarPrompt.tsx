@@ -5,7 +5,7 @@ type CalendarState = "idle" | "ready" | "error";
 
 const OPTIONS: ReadonlyArray<{ label: string; mode: CalendarReminderMode }> = [
   { label: "Полдень", mode: "young-crescent-noon" },
-  { label: "Новолуние", mode: "new-moon-moment" }
+  { label: "Вечер", mode: "young-crescent-evening" }
 ];
 
 function getMessage(state: CalendarState, mode: CalendarReminderMode): string {
@@ -17,9 +17,9 @@ function getMessage(state: CalendarState, mode: CalendarReminderMode): string {
     return "Не получилось создать файл.";
   }
 
-  return mode === "new-moon-moment"
-    ? "Напомнит в точный момент новолуния."
-    : "Напомнит в 12:00 в день молодого серпа.";
+  return mode === "young-crescent-evening"
+    ? "Напомнит вечером, когда искать молодой месяц."
+    : "Напомнит днем, чтобы не забыть про вечер.";
 }
 
 export function CalendarPrompt() {
