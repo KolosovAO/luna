@@ -8,6 +8,8 @@
     "build": "tsc --noEmit && vite build",
     "build:pages": "VITE_BASE_PATH=/luna/ npm run build",
     "preview": "vite preview",
+    "push:icons": "node scripts/generate-pwa-icons.mjs",
+    "push:keys": "node scripts/generate-vapid-keys.mjs",
     "test": "vitest run",
     "lint": "eslint ."
   },

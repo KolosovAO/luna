@@ -490,6 +490,83 @@ h2 {
   color: #91a2ba;
 }
 
+.notification-prompt {
+  width: min(100%, 560px);
+  min-height: 58px;
+  padding: 10px 12px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  color: #ffffff;
+  border: 1px solid rgba(210, 232, 255, 0.22);
+  border-radius: 8px;
+  background:
+    linear-gradient(135deg, rgba(255, 255, 255, 0.08), transparent 36%),
+    rgba(7, 15, 29, 0.72);
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.08),
+    0 16px 42px rgba(0, 0, 0, 0.2);
+  cursor: pointer;
+}
+
+.notification-prompt:disabled {
+  cursor: default;
+  opacity: 0.76;
+}
+
+.notification-prompt:not(:disabled):active {
+  transform: translateY(1px);
+}
+
+.notification-prompt--enabled {
+  border-color: rgba(245, 213, 138, 0.38);
+  background:
+    linear-gradient(135deg, rgba(255, 245, 190, 0.14), transparent 38%),
+    rgba(24, 22, 30, 0.74);
+}
+
+.notification-prompt__copy {
+  min-width: 0;
+  display: grid;
+  gap: 2px;
+  text-align: left;
+}
+
+.notification-prompt__title {
+  overflow: hidden;
+  font-size: 0.94rem;
+  font-weight: 780;
+  letter-spacing: 0;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.notification-prompt__message {
+  overflow: hidden;
+  color: #adbed7;
+  font-size: 0.72rem;
+  font-weight: 620;
+  letter-spacing: 0;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.notification-prompt__badge {
+  width: 42px;
+  height: 38px;
+  flex: 0 0 auto;
+  display: grid;
+  place-items: center;
+  border: 1px solid rgba(221, 238, 255, 0.2);
+  border-radius: 8px;
+  background: rgba(170, 207, 255, 0.16);
+  color: #ffffff;
+  font-size: 0.75rem;
+  font-weight: 900;
+  letter-spacing: 0;
+}
+
 @keyframes starDriftFar {
   from {
     transform: translate3d(-0.4px, 0.2px, 0);
@@ -697,5 +774,24 @@ h2 {
 
   .info-panel__text--muted {
     display: none;
+  }
+
+  .notification-prompt {
+    min-height: 50px;
+    padding: 8px 10px;
+  }
+
+  .notification-prompt__title {
+    font-size: 0.82rem;
+  }
+
+  .notification-prompt__message {
+    font-size: 0.66rem;
+  }
+
+  .notification-prompt__badge {
+    width: 36px;
+    height: 34px;
+    font-size: 0.68rem;
   }
 }

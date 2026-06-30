@@ -1,0 +1,15 @@
+name = "luna-push"
+main = "src/index.ts"
+compatibility_date = "2026-06-30"
+
+[vars]
+ALLOWED_ORIGIN = "https://kolosovao.github.io"
+VAPID_PUBLIC_KEY = ""
+VAPID_SUBJECT = "mailto:your-email@example.com"
+
+[[kv_namespaces]]
+binding = "SUBSCRIPTIONS"
+id = "replace_with_cloudflare_kv_namespace_id"
+
+[triggers]
+crons = ["*/15 * * * *"]
