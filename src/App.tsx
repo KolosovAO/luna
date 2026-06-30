@@ -1,11 +1,13 @@
 import { useEffect, useMemo, useState } from "react";
-import { SafeAreaView, StyleSheet, Text, useWindowDimensions, View } from "react-native";
+import { Platform, SafeAreaView, StyleSheet, Text, useWindowDimensions, View } from "react-native";
 import { StatusBar } from "expo-status-bar";
 import { Countdown } from "./components/Countdown";
 import { MoonPhase } from "./components/MoonPhase";
+import { NotificationPrompt } from "./components/NotificationPrompt";
 import { StarField } from "./components/StarField";
 import { getDisplayState } from "./lunar/display";
 import { getCountdownParts, getLunarSnapshot, type CountdownParts, type TimeWindow } from "./lunar/lunarEngine";
+import { ensurePwaMetadata } from "./pwa/metadata";
 
 const shortDateFormatter = new Intl.DateTimeFormat("ru-RU", {
   day: "2-digit",
@@ -56,6 +58,10 @@ export function App() {
   useEffect(() => {
     const timer = setInterval(() => setNow(new Date()), 1000);
     return () => clearInterval(timer);
+  }, []);
+
+  useEffect(() => {
+    ensurePwaMetadata();
   }, []);
 
   const snapshot = useMemo(() => getLunarSnapshot(now), [now]);
@@ -123,6 +129,8 @@ export function App() {
                 {formatShortDateTime(snapshot.youngCrescentMoneyWindow.end)}
               </Text>
             </View>
+
+            {Platform.OS === "web" ? <NotificationPrompt compact={compact} /> : null}
           </View>
         </View>
       </SafeAreaView>

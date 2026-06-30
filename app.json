@@ -15,6 +15,7 @@
     },
     "web": {
       "bundler": "metro",
+      "favicon": "./public/icon-192.png",
       "output": "single"
     },
     "experiments": {

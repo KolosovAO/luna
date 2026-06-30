@@ -10,7 +10,10 @@
     "web": "expo start --web",
     "build": "tsc --noEmit",
     "export:web": "expo export --platform web --output-dir dist",
-    "build:pages": "npm run build && npm run export:web",
+    "copy:pwa": "node scripts/copy-pwa-assets.mjs",
+    "build:pages": "npm run build && npm run export:web && npm run copy:pwa",
+    "push:icons": "node scripts/generate-pwa-icons.mjs",
+    "push:keys": "node scripts/generate-vapid-keys.mjs",
     "test": "vitest run",
     "lint": "eslint ."
   },

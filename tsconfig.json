@@ -8,6 +8,7 @@
   "include": [
     "src",
     "index.ts",
+    "push-worker/src",
     "eslint.config.js"
   ]
 }
