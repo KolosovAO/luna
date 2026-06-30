@@ -1,7 +1,7 @@
 {
   "expo": {
     "name": "Luna Helper",
-    "slug": "luna-helper",
+    "slug": "luna",
     "version": "0.1.0",
     "orientation": "portrait",
     "userInterfaceStyle": "dark",
@@ -19,6 +19,12 @@
     },
     "experiments": {
       "baseUrl": "/luna"
-    }
+    },
+    "extra": {
+      "eas": {
+        "projectId": "da5edd13-ade1-4cb5-a8cb-0d5e9afc6e4e"
+      }
+    },
+    "owner": "akolosovs-team"
   }
 }
