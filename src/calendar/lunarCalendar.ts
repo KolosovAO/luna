@@ -5,9 +5,14 @@ const DEFAULT_EVENT_COUNT = 18;
 const REMINDER_HOUR = 12;
 const EVENT_DURATION_MINUTES = 15;
 
+export type CalendarReminderMode = "young-crescent-noon" | "new-moon-moment";
+
 export interface CalendarReminder {
   id: string;
+  mode: CalendarReminderMode;
   reminderAt: Date;
+  summary: string;
+  description: string;
   windowStart: Date;
   windowEnd: Date;
 }
@@ -71,30 +76,60 @@ function makeCalendarLines(lines: string[]): string {
   return `${lines.map(foldLine).join("\r\n")}\r\n`;
 }
 
-export function getUpcomingYoungCrescentReminders(
-  from = new Date(),
-  count = DEFAULT_EVENT_COUNT
-): CalendarReminder[] {
+function getFirstCycleCenter(from: Date, mode: CalendarReminderMode): Date {
   const { previousNewMoon, nextNewMoon } = getNewMoonBounds(from);
-  const reminders: CalendarReminder[] = [];
-  let cycleCenter = previousNewMoon;
 
-  if (atLocalNoon(new Date(cycleCenter.getTime() + DAY_MS)).getTime() <= from.getTime()) {
-    cycleCenter = nextNewMoon;
+  if (mode === "new-moon-moment") {
+    return previousNewMoon.getTime() > from.getTime() ? previousNewMoon : nextNewMoon;
   }
 
-  while (reminders.length < count) {
-    const windowStart = new Date(cycleCenter.getTime() + DAY_MS);
-    const windowEnd = new Date(cycleCenter.getTime() + 3 * DAY_MS);
-    const reminderAt = atLocalNoon(windowStart);
+  return atLocalNoon(new Date(previousNewMoon.getTime() + DAY_MS)).getTime() <= from.getTime()
+    ? nextNewMoon
+    : previousNewMoon;
+}
 
-    if (reminderAt.getTime() > from.getTime()) {
-      reminders.push({
-        id: `luna-young-crescent-${formatLocalDateTime(reminderAt).slice(0, 8)}`,
-        reminderAt,
-        windowEnd,
-        windowStart
-      });
+function makeReminder(cycleCenter: Date, mode: CalendarReminderMode): CalendarReminder {
+  const windowStart = new Date(cycleCenter.getTime() + DAY_MS);
+  const windowEnd = new Date(cycleCenter.getTime() + 3 * DAY_MS);
+
+  if (mode === "new-moon-moment") {
+    return {
+      id: `luna-new-moon-${formatUtcDateTime(cycleCenter).replace(/Z$/, "")}`,
+      description: "Точный момент новолуния по расчету Luna Helper.",
+      mode,
+      reminderAt: cycleCenter,
+      summary: "Новолуние",
+      windowEnd,
+      windowStart
+    };
+  }
+
+  const reminderAt = atLocalNoon(windowStart);
+
+  return {
+    id: `luna-young-crescent-${formatLocalDateTime(reminderAt).slice(0, 8)}`,
+    description: "Сегодня вечером можно посмотреть на молодой месяц.",
+    mode,
+    reminderAt,
+    summary: "Молодой серп",
+    windowEnd,
+    windowStart
+  };
+}
+
+export function getUpcomingLunarReminders(
+  from = new Date(),
+  count = DEFAULT_EVENT_COUNT,
+  mode: CalendarReminderMode = "young-crescent-noon"
+): CalendarReminder[] {
+  const reminders: CalendarReminder[] = [];
+  let cycleCenter = getFirstCycleCenter(from, mode);
+
+  while (reminders.length < count) {
+    const reminder = makeReminder(cycleCenter, mode);
+
+    if (reminder.reminderAt.getTime() > from.getTime()) {
+      reminders.push(reminder);
     }
 
     cycleCenter = new Date(cycleCenter.getTime() + SYNODIC_MONTH_MS);
@@ -103,9 +138,13 @@ export function getUpcomingYoungCrescentReminders(
   return reminders;
 }
 
-export function createYoungCrescentCalendar(from = new Date(), count = DEFAULT_EVENT_COUNT): string {
+export function createLunarCalendar(
+  from = new Date(),
+  count = DEFAULT_EVENT_COUNT,
+  mode: CalendarReminderMode = "young-crescent-noon"
+): string {
   const now = new Date();
-  const events = getUpcomingYoungCrescentReminders(from, count);
+  const events = getUpcomingLunarReminders(from, count, mode);
   const lines = [
     "BEGIN:VCALENDAR",
     "VERSION:2.0",
@@ -117,8 +156,6 @@ export function createYoungCrescentCalendar(from = new Date(), count = DEFAULT_E
 
   for (const event of events) {
     const endAt = addMinutes(event.reminderAt, EVENT_DURATION_MINUTES);
-    const summary = "Молодой серп";
-    const description = "Сегодня вечером можно посмотреть на молодой месяц.";
 
     lines.push(
       "BEGIN:VEVENT",
@@ -126,11 +163,11 @@ export function createYoungCrescentCalendar(from = new Date(), count = DEFAULT_E
       `DTSTAMP:${formatUtcDateTime(now)}`,
       `DTSTART:${formatLocalDateTime(event.reminderAt)}`,
       `DTEND:${formatLocalDateTime(endAt)}`,
-      `SUMMARY:${escapeText(summary)}`,
-      `DESCRIPTION:${escapeText(description)}`,
+      `SUMMARY:${escapeText(event.summary)}`,
+      `DESCRIPTION:${escapeText(event.description)}`,
       "BEGIN:VALARM",
       "ACTION:DISPLAY",
-      `DESCRIPTION:${escapeText(summary)}`,
+      `DESCRIPTION:${escapeText(event.summary)}`,
       "TRIGGER:-PT0M",
       "END:VALARM",
       "END:VEVENT"
@@ -141,14 +178,14 @@ export function createYoungCrescentCalendar(from = new Date(), count = DEFAULT_E
   return makeCalendarLines(lines);
 }
 
-export function downloadYoungCrescentCalendar(): void {
-  const calendar = createYoungCrescentCalendar();
+export function downloadLunarCalendar(mode: CalendarReminderMode): void {
+  const calendar = createLunarCalendar(new Date(), DEFAULT_EVENT_COUNT, mode);
   const blob = new Blob([calendar], { type: "text/calendar;charset=utf-8" });
   const url = URL.createObjectURL(blob);
   const link = document.createElement("a");
 
   link.href = url;
-  link.download = "luna-reminders.ics";
+  link.download = mode === "new-moon-moment" ? "luna-new-moon.ics" : "luna-young-crescent.ics";
   document.body.appendChild(link);
   link.click();
   link.remove();
