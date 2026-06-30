@@ -1,7 +1,7 @@
 import { useEffect, useMemo, useState } from "react";
+import { CalendarPrompt } from "./components/CalendarPrompt";
 import { Countdown } from "./components/Countdown";
 import { MoonPhase } from "./components/MoonPhase";
-import { NotificationPrompt } from "./components/NotificationPrompt";
 import { StarField } from "./components/StarField";
 import { getDisplayState } from "./lunar/display";
 import { getCountdownParts, getLunarSnapshot, type CountdownParts, type TimeWindow } from "./lunar/lunarEngine";
@@ -126,7 +126,7 @@ export function App() {
               </article>
             </section>
 
-            <NotificationPrompt />
+            <CalendarPrompt />
           </div>
         </section>
       </div>

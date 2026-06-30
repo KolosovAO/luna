@@ -490,7 +490,7 @@ h2 {
   color: #91a2ba;
 }
 
-.notification-prompt {
+.calendar-prompt {
   width: min(100%, 560px);
   min-height: 58px;
   padding: 10px 12px;
@@ -510,30 +510,29 @@ h2 {
   cursor: pointer;
 }
 
-.notification-prompt:disabled {
-  cursor: default;
-  opacity: 0.76;
-}
-
-.notification-prompt:not(:disabled):active {
+.calendar-prompt:active {
   transform: translateY(1px);
 }
 
-.notification-prompt--enabled {
+.calendar-prompt--ready {
   border-color: rgba(245, 213, 138, 0.38);
   background:
     linear-gradient(135deg, rgba(255, 245, 190, 0.14), transparent 38%),
     rgba(24, 22, 30, 0.74);
 }
 
-.notification-prompt__copy {
+.calendar-prompt--error {
+  border-color: rgba(255, 143, 143, 0.38);
+}
+
+.calendar-prompt__copy {
   min-width: 0;
   display: grid;
   gap: 2px;
   text-align: left;
 }
 
-.notification-prompt__title {
+.calendar-prompt__title {
   overflow: hidden;
   font-size: 0.94rem;
   font-weight: 780;
@@ -542,7 +541,7 @@ h2 {
   white-space: nowrap;
 }
 
-.notification-prompt__message {
+.calendar-prompt__message {
   overflow: hidden;
   color: #adbed7;
   font-size: 0.72rem;
@@ -552,7 +551,7 @@ h2 {
   white-space: nowrap;
 }
 
-.notification-prompt__badge {
+.calendar-prompt__badge {
   width: 42px;
   height: 38px;
   flex: 0 0 auto;
@@ -776,20 +775,20 @@ h2 {
     display: none;
   }
 
-  .notification-prompt {
+  .calendar-prompt {
     min-height: 50px;
     padding: 8px 10px;
   }
 
-  .notification-prompt__title {
+  .calendar-prompt__title {
     font-size: 0.82rem;
   }
 
-  .notification-prompt__message {
+  .calendar-prompt__message {
     font-size: 0.66rem;
   }
 
-  .notification-prompt__badge {
+  .calendar-prompt__badge {
     width: 36px;
     height: 34px;
     font-size: 0.68rem;
